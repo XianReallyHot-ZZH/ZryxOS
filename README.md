@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/images/zryxos-logo.svg" alt="ZryxOS Logo" width="200"/>
+
 # ZryxOS
 
 **企业级 Java Agent 操作系统**

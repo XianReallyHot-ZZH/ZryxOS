@@ -1,0 +1,116 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradient for main circle -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Gradient for inner elements -->
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+    </linearGradient>
+
+    <!-- Glow effect -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shadow -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background circle with gradient -->
+  <circle cx="200" cy="200" r="180" fill="url(#mainGradient)" filter="url(#shadow)"/>
+
+  <!-- Hexagon frame (representing OS/Platform) -->
+  <g transform="translate(200, 200)">
+    <path d="M 0,-120 L 104,-60 L 104,60 L 0,120 L -104,60 L -104,-60 Z"
+          fill="none"
+          stroke="#ffffff"
+          stroke-width="6"
+          opacity="0.9"
+          filter="url(#glow)"/>
+  </g>
+
+  <!-- Neural network nodes (representing Agent intelligence) -->
+  <g opacity="0.95">
+    <!-- Central node -->
+    <circle cx="200" cy="200" r="20" fill="url(#accentGradient)" filter="url(#glow)"/>
+
+    <!-- Surrounding nodes -->
+    <circle cx="200" cy="130" r="12" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="260" cy="165" r="12" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="260" cy="235" r="12" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="200" cy="270" r="12" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="140" cy="235" r="12" fill="#fbbf24" opacity="0.9"/>
+    <circle cx="140" cy="165" r="12" fill="#fbbf24" opacity="0.9"/>
+
+    <!-- Connections (neural pathways) -->
+    <line x1="200" y1="200" x2="200" y2="130" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <line x1="200" y1="200" x2="260" y2="165" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <line x1="200" y1="200" x2="260" y2="235" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <line x1="200" y1="200" x2="200" y2="270" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <line x1="200" y1="200" x2="140" y2="235" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+    <line x1="200" y1="200" x2="140" y2="165" stroke="#ffffff" stroke-width="2" opacity="0.6"/>
+  </g>
+
+  <!-- Letter "Z" integrated design (stylized) -->
+  <g transform="translate(200, 200)" opacity="0.95">
+    <path d="M -40,-60 L 40,-60 L -40,60 L 40,60"
+          fill="none"
+          stroke="#ffffff"
+          stroke-width="12"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          filter="url(#glow)"/>
+  </g>
+
+  <!-- Orbital rings (representing OS operation) -->
+  <g opacity="0.4">
+    <circle cx="200" cy="200" r="140" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="8,8">
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="rotate"
+        from="0 200 200"
+        to="360 200 200"
+        dur="20s"
+        repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="200" r="160" fill="none" stroke="#ffffff" stroke-width="1" stroke-dasharray="12,12">
+      <animateTransform
+        attributeName="transform"
+        attributeType="XML"
+        type="rotate"
+        from="360 200 200"
+        to="0 200 200"
+        dur="25s"
+        repeatCount="indefinite"/>
+    </circle>
+  </g>
+
+  <!-- Small particles (representing data flow) -->
+  <g opacity="0.7">
+    <circle cx="280" cy="200" r="3" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="120" cy="200" r="3" fill="#fbbf24">
+      <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="280" r="3" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="120" r="3" fill="#fbbf24">
+      <animate attributeName="opacity" values="1;0.5;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+</svg>
