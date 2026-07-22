@@ -1,345 +1,345 @@
-# ZryxOS Project Guide for AI Assistants
+# ZryxOS AI 助手项目指南
 
-## Project Overview
+## 项目概述
 
-ZryxOS is a Java-based Agent OS (Operating System) designed for enterprise scenarios. It serves as a unified platform deployed on enterprise infrastructure (K8s or servers) to run multiple business agents, sharing capabilities like channel integration, model routing, tool invocation, memory systems, and sandbox execution.
+ZryxOS 是基于 Java 实现的面向企业场景的 Agent OS（智能体操作系统）。它作为统一平台部署在企业自有基础设施（K8s 或服务器）上，运行多个业务 Agent，共享渠道接入、模型路由、工具调用、记忆系统、沙箱执行等能力。
 
-### Key Positioning
+### 核心定位
 
-- **Technology Stack**: Java 21 + Spring Boot 3.x + Spring AI Alibaba
-- **Deployment Model**: Single JAR, self-hosted, no cloud lock-in
-- **Target Users**: Enterprises requiring private, auditable, controllable agent infrastructure
-- **Differentiation**: First Java-native Agent OS, filling the gap left by Node.js (OpenClaw) and Python (Hermes Agent) in Java ecosystems
+- **技术栈**: Java 21 + Spring Boot 3.x + Spring AI Alibaba
+- **部署模式**: 单 JAR 文件，自托管，无云厂商锁定
+- **目标用户**: 需要私有、可审计、可控的 Agent 基础设施的企业
+- **差异化**: 首个 Java 原生 Agent OS，填补 Java 生态在 Node.js (OpenClaw) 和 Python (Hermes Agent) 之外的空白
 
-### Project Status
+### 项目状态
 
-**Current Phase**: Core development (4 weeks, 12 hours total)
-- Objective: Deliver Agent OS runtime kernel
-- Scope: Five core capabilities operational
-- Post-core: Extended features and enterprise governance via community
+**当前阶段**: 核心开发（4 周，共 12 小时）
+- 目标: 交付 Agent OS 运行时内核
+- 范围: 五大核心能力可运行
+- 后续: 扩展功能和企业治理层由社区共建
 
-## Architecture Overview
+## 架构总览
 
-### Core Layers (Bottom-up)
+### 核心分层（自底向上）
 
-1. **Storage Layer** (`zryxos-storage`)
+1. **存储层** (`zryxos-storage`)
    - SQLite: sessions, tool_invocations, llm_calls, scheduled_tasks, task_executions
-   - Filesystem: .zryxos/ directory (profiles, MEMORY.md, skills, agents)
+   - 文件系统: .zryxos/ 目录（profiles、MEMORY.md、skills、agents）
 
-2. **Capability Layer**
-   - **Provider** (`zryxos-provider`): LLM abstraction, explicit provider-name-to-ChatModel mapping
-   - **Memory** (`zryxos-memory`): Three-tier (session + long-term MEMORY.md + episodic), MemoryService façade
-   - **Tool** (`zryxos-tool`): Built-in tools + MCP integration + Sandbox + NotifyTools
-   - **Notify**: Outbound push capability (WebhookNotifyAdapter)
+2. **能力层**
+   - **Provider** (`zryxos-provider`): LLM 抽象，显式 provider-name 到 ChatModel 映射
+   - **Memory** (`zryxos-memory`): 三层（会话 + 长期 MEMORY.md + 情景），MemoryService 统一门面
+   - **Tool** (`zryxos-tool`): 内置工具 + MCP 集成 + Sandbox + NotifyTools
+   - **Notify**: 出站推送能力（WebhookNotifyAdapter）
 
-3. **Engine Layer** (`zryxos-core`)
-   - **ReActLoop**: Self-implemented Reason+Act cycle (max 10 iterations)
-   - **PromptBuilder**: Assembles system prompt + bootstrap + memory + history + tools
-   - **ToolExecutor**: Sandbox check + audit write
-   - **AgentService**: Unified entry point for all three trigger sources
-   - **AgentScheduler**: Third trigger source (cron-based, clock-driven)
+3. **引擎层** (`zryxos-core`)
+   - **ReActLoop**: 自实现 Reason+Act 循环（最大 10 次迭代）
+   - **PromptBuilder**: 组装 system prompt + bootstrap + memory + history + tools
+   - **ToolExecutor**: Sandbox 检查 + 审计写入
+   - **AgentService**: 三种触发源的统一入口
+   - **AgentScheduler**: 第三触发源（基于 cron 的钟推）
 
-4. **Agent Layer**
-   - One Agent = One directory (`.zryxos/agents/<name>/`)
-   - `AGENT.md`: frontmatter (profile) + body (task instructions)
-   - Optional: `skills/*.md` (sub-instructions), `scripts/`, `REFERENCE.md`
-   - Loaded by `AgentLoader` → derives Profile → registers to ProfileRegistry
+4. **Agent 层**
+   - 一个 Agent = 一个目录（`.zryxos/agents/<name>/`）
+   - `AGENT.md`: frontmatter（profile）+ 正文（任务指令）
+   - 可选: `skills/*.md`（子指令）、`scripts/`、`REFERENCE.md`
+   - 由 `AgentLoader` 加载 → 派生 Profile → 注册到 ProfileRegistry
 
-5. **Channel/Trigger Layer**
-   - CLI Channel (`zryxos-channel-cli`): human-driven
-   - Web Service (`zryxos-web`): human-driven via REST API
-   - AgentScheduler: clock-driven (cron triggers)
+5. **Channel/触发层**
+   - CLI Channel (`zryxos-channel-cli`): 人推
+   - Web Service (`zryxos-web`): 通过 REST API 人推
+   - AgentScheduler: 钟推（cron 触发）
 
-### Five Core Capabilities
+### 五大核心能力
 
-1. **LLM Integration**: Provider abstraction over Spring AI Alibaba
-2. **ReAct Loop**: Self-implemented agent reasoning cycle
-3. **Memory System**: Session + MEMORY.md (long-term), three-tier design
-4. **Tool System**: Built-in (file/shell/HTTP/memory/notify) + Plugin (MCP/Java @Tool)
-5. **Web Service**: 10 REST endpoints for external integration
+1. **LLM 集成**: 基于 Spring AI Alibaba 的 Provider 抽象
+2. **ReAct 循环**: 自实现的智能体推理循环
+3. **Memory 系统**: 会话 + MEMORY.md（长期），三层设计
+4. **Tool 体系**: 内置（file/shell/HTTP/memory/notify）+ 插件（MCP/Java @Tool）
+5. **Web Service**: 10 个 REST 端点供外部集成
 
-### Nine Maven Modules
+### 九个 Maven 模块
 
 ```
-zryxos-core          # Core abstractions, ReAct loop, Agent/Profile management, scheduler
-zryxos-provider      # LLM provider abstraction
-zryxos-memory        # Memory service façade, LongTermMemory, MemoryTools
-zryxos-tool          # Built-in tools, MCP client, ToolRegistry, Sandbox, NotifyTools
-zryxos-channel-cli   # CLI channel
-zryxos-web           # REST API (6 controllers, 10 endpoints)
-zryxos-storage       # SQLite persistence, repositories
-zryxos-cli           # Picocli entry, 12 commands, ConfigLoader
-zryxos-boot          # Spring Boot startup, auto-configuration
+zryxos-core          # 核心抽象、ReAct 循环、Agent/Profile 管理、调度器
+zryxos-provider      # LLM provider 抽象
+zryxos-memory        # Memory service 门面、LongTermMemory、MemoryTools
+zryxos-tool          # 内置工具、MCP client、ToolRegistry、Sandbox、NotifyTools
+zryxos-channel-cli   # CLI 渠道
+zryxos-web           # REST API（6 个 controller，10 个端点）
+zryxos-storage       # SQLite 持久化、repositories
+zryxos-cli           # Picocli 入口、12 个命令、ConfigLoader
+zryxos-boot          # Spring Boot 启动、自动配置
 ```
 
-## Constitutional Principles (Non-negotiable)
+## 宪法原则（非协商）
 
-1. **JDK 21 + Spring Boot 3.x single-JAR deployment**
-2. **Five core capabilities first**: Runtime kernel before governance layer
-3. **Self-implemented ReAct loop**: No direct use of Spring AI Agent abstraction
-4. **Spring AI usage boundary**: 
-   - ✅ USE: Provider abstraction, protocol conversion, @Tool schema generation
-   - ❌ NEVER: Automatic tool execution (leads to double invocation)
-   - Tool scheduling: 100% controlled by ReActLoop + ToolExecutor
-5. **Plugin Tool three-tier access**: Zero-code (AGENT.md + MCP) → Light-code (MCP server) → Heavy-code (@Tool Java Bean)
-6. **SQLite + MEMORY.md storage**: Vector search in extended phase; `tool_invocations` and `llm_calls` audit tables written from day one
-7. **Every user story must have demo**: Prioritize working over perfect
+1. **JDK 21 + Spring Boot 3.x 单 JAR 部署**
+2. **五大核心能力优先**: 先做运行时内核，后做治理层
+3. **自实现 ReAct 循环**: 不直接使用 Spring AI Agent 抽象
+4. **Spring AI 使用边界**: 
+   - ✅ 使用: Provider 抽象、协议转换、@Tool schema 生成
+   - ❌ 禁止: 自动工具执行（会导致工具被调用两次）
+   - 工具调度: 100% 由 ReActLoop + ToolExecutor 控制
+5. **Plugin Tool 三档接入**: 零代码（AGENT.md + MCP）→ 轻代码（MCP server）→ 重代码（@Tool Java Bean）
+6. **SQLite + MEMORY.md 存储**: 向量检索放扩展阶段；`tool_invocations` 和 `llm_calls` 审计表从第一天就写入
+7. **每个 user story 必须有 demo**: 优先跑通而非完美
 
-## Key Design Decisions
+## 关键设计决策
 
-### ReAct Loop
-- Self-implemented (~dozens of lines Java)
-- LLM decides tool usage → OryxOS executes → result feeds back → continues
-- MAX_ITERATIONS default: 10 (configurable per Profile)
+### ReAct 循环
+- 自实现（约数十行 Java）
+- LLM 决定工具使用 → ZryxOS 执行 → 结果回填 → 继续
+- MAX_ITERATIONS 默认: 10（可在 Profile 中配置）
 
-### Spring AI Integration
-**CRITICAL**: Spring AI auto-execution MUST be disabled
-- Only use: ChatClient abstraction, protocol conversion, schema generation
-- Tool execution: Exclusively via ToolExecutor
-- Common mistake: Enabling auto-execution causes tools to run twice
+### Spring AI 集成
+**关键**: Spring AI 自动执行必须禁用
+- 仅使用: ChatClient 抽象、协议转换、schema 生成
+- 工具执行: 完全通过 ToolExecutor
+- 常见错误: 启用自动执行导致工具运行两次
 
-### Provider Mapping
-- Explicit provider-name-to-ChatModel mapping (NOT type scanning)
-- Multiple providers: Prevents ambiguity when multiple ChatModel beans exist
+### Provider 映射
+- 显式 provider-name 到 ChatModel 映射（非类型扫描）
+- 多 provider: 防止多个 ChatModel bean 存在时的歧义
 
-### Memory Architecture
-- **MemoryService façade**: Unified interface hiding SessionManager + LongTermMemory
-- **MEMORY.md structure**: Core memory section (never truncated) + Archive section (truncatable)
-- **Three backend options** (core phase delivers all three):
-  - `MarkdownMemoryStore` (default): Single .zryxos/memory/MEMORY.md file
-  - `SqliteMemoryStore`: Structured entries in memory_entries table
-  - `Mem0MemoryStore`: Self-hosted Mem0 integration
+### Memory 架构
+- **MemoryService 门面**: 统一接口隐藏 SessionManager + LongTermMemory
+- **MEMORY.md 结构**: 核心记忆区（永不截断）+ 归档记忆区（可截断）
+- **三种后端选项**（核心阶段交付全部三种）:
+  - `MarkdownMemoryStore`（默认）: 单个 .zryxos/memory/MEMORY.md 文件
+  - `SqliteMemoryStore`: memory_entries 表中的结构化条目
+  - `Mem0MemoryStore`: 自托管 Mem0 集成
 
-### Tool System
-- **OryxTool abstraction**: Unified interface for all tool types
-- **Three plugin tiers**:
-  1. Zero-code: AGENT.md directory + reuse MCP servers
-  2. Light-code: Write MCP server in any language
-  3. Heavy-code: Java @Tool annotated Spring Bean
-- **Sandbox**: Interface-first design
-  - Core phase: `WhitelistSandbox` (application-layer path/command/domain whitelist)
-  - Extended phase: Container isolation → microVM (signal-driven upgrade)
+### Tool 体系
+- **ZryxTool 抽象**: 所有工具类型的统一接口
+- **三档插件**:
+  1. 零代码: AGENT.md 目录 + 复用 MCP server
+  2. 轻代码: 用任意语言编写 MCP server
+  3. 重代码: Java @Tool 注解的 Spring Bean
+- **Sandbox**: 接口优先设计
+  - 核心阶段: `WhitelistSandbox`（应用层路径/命令/域名白名单）
+  - 扩展阶段: 容器隔离 → microVM（信号驱动升级）
 
-### Agent Definition
-- **One Agent = One Directory** (`.zryxos/agents/<name>/`)
-- `AGENT.md` frontmatter → Profile derivation (via `AgentLoader.deriveProfile`)
-- Body → system prompt injection (via `ContextLoader`)
-- Sub-resources: Loaded on-demand via `read_file`/`shell` (progressive disclosure)
-- NOT a Tool: Agent directory is context source, not executable tool
+### Agent 定义
+- **一个 Agent = 一个目录**（`.zryxos/agents/<name>/`）
+- `AGENT.md` frontmatter → Profile 派生（通过 `AgentLoader.deriveProfile`）
+- 正文 → system prompt 注入（通过 `ContextLoader`）
+- 子资源: 通过 `read_file`/`shell` 按需加载（渐进式披露）
+- 不是 Tool: Agent 目录是上下文来源，不是可执行工具
 
-### Notification System (NotifyTools)
-- **Purpose**: Symmetric outbound channel (complements inbound Channel adapters)
-- **NotifyChannelAdapter interface**: `send(NotifyTarget, content)`
-- **Core implementation**: `WebhookNotifyAdapter` (generic webhooks for IM platforms)
-- **Usage**: `notify` tool, configured via Profile's `notify_channels` field
-- Sandbox domain whitelist enforced, audit trail via existing tool_invocations
+### 通知系统（NotifyTools）
+- **用途**: 对称的出站渠道（补充入站 Channel 适配器）
+- **NotifyChannelAdapter 接口**: `send(NotifyTarget, content)`
+- **核心实现**: `WebhookNotifyAdapter`（IM 平台的通用 webhook）
+- **使用**: `notify` 工具，通过 Profile 的 `notify_channels` 字段配置
+- Sandbox 域名白名单强制执行，通过现有 tool_invocations 审计
 
-### Scheduled Tasks (AgentScheduler)
-- **Third trigger source**: Clock-driven (cron) alongside human-driven (CLI/Web)
-- **Same execution path**: Calls `AgentService.process` like CLI/Web
-- **Profile configuration**: `schedules` field in AGENT.md frontmatter
-- **Concurrency**: Process-level ReentrantLock (per-task) prevents overlap
-- **Session identity**: channel=scheduler, user=scheduler, shared session per Profile
-- **State persistence**: Two tables (`scheduled_tasks`, `task_executions`) for management
+### 定时任务（AgentScheduler）
+- **第三触发源**: 钟推（cron），与人推（CLI/Web）并列
+- **相同执行路径**: 像 CLI/Web 一样调用 `AgentService.process`
+- **Profile 配置**: AGENT.md frontmatter 中的 `schedules` 字段
+- **并发控制**: 进程级 ReentrantLock（每任务）防止重叠
+- **Session 标识**: channel=scheduler, user=scheduler，每个 Profile 共享 session
+- **状态持久化**: 两张表（`scheduled_tasks`, `task_executions`）用于管理
 
-## File System Structure
+## 文件系统结构
 
 ```
 .zryxos/
-├── agents/              # Agent directories (each = one Agent)
+├── agents/              # Agent 目录（每个 = 一个 Agent）
 │   └── <name>/
-│       ├── AGENT.md     # frontmatter (profile) + body (instructions)
-│       ├── skills/      # Optional sub-instructions
-│       ├── scripts/     # Optional scripts
-│       └── REFERENCE.md # Optional reference docs
+│       ├── AGENT.md     # frontmatter（profile）+ 正文（指令）
+│       ├── skills/      # 可选子指令
+│       ├── scripts/     # 可选脚本
+│       └── REFERENCE.md # 可选参考文档
 ├── memory/
-│   └── MEMORY.md        # Long-term memory (core + archive sections)
-├── mcp_servers.yaml     # MCP server configurations
-├── sessions/            # Session data (if file-based)
-├── logs/                # Structured logs
-├── AGENTS.md            # Bootstrap: project-level agent behavior
-├── SOUL.md              # Bootstrap: agent personality
-├── USER.md              # Bootstrap: user preferences
-└── zryxos.db            # SQLite database
+│   └── MEMORY.md        # 长期记忆（核心 + 归档区）
+├── mcp_servers.yaml     # MCP server 配置
+├── sessions/            # Session 数据（如果基于文件）
+├── logs/                # 结构化日志
+├── AGENTS.md            # Bootstrap: 项目级 agent 行为
+├── SOUL.md              # Bootstrap: agent 人格
+├── USER.md              # Bootstrap: 用户偏好
+└── zryxos.db            # SQLite 数据库
 ```
 
-## Database Schema
+## 数据库 Schema
 
-### Core Tables
+### 核心表
 
 **sessions**
-- session_id (PK): channel + user + profile composite
+- session_id (PK): channel + user + profile 组合
 - profile_name, channel, user_id
-- messages_json: Serialized conversation history
+- messages_json: 序列化的对话历史
 - status: active / archived
-- Timestamps: created_at, last_active_at, archived_at
+- 时间戳: created_at, last_active_at, archived_at
 
-**tool_invocations** (audit, day-one write)
+**tool_invocations**（审计，第一天写入）
 - id, session_id, tool_name
 - input_json, result_json
 - success, error_message, duration_ms
 - created_at
 
-**llm_calls** (audit, day-one write)
+**llm_calls**（审计，第一天写入）
 - id, session_id, provider, model
 - prompt_tokens, completion_tokens, total_tokens
 - duration_ms, created_at
 
-**scheduled_tasks** (scheduler state)
+**scheduled_tasks**（调度器状态）
 - task_id (PK), profile_name, cron, zone, message
 - enabled, next_run_at, last_run_at, last_status, run_count
 - updated_at
 
-**task_executions** (scheduler history)
+**task_executions**（调度器历史）
 - id (PK), task_id, session_id
 - started_at, success, error_message, duration_ms
 
-## Development Guidelines
+## 开发指南
 
-### When Working on This Project
+### 开发本项目时
 
-1. **Read before implementing**: Always check existing code and documents
-2. **Follow module boundaries**: Respect the 9-module structure
-3. **Constitutional compliance**: Every PR must align with principles above
-4. **Test each capability**: Core phase requires working demos for all five capabilities
-5. **Audit from day one**: Write to tool_invocations and llm_calls tables immediately
+1. **实现前先阅读**: 始终检查现有代码和文档
+2. **遵循模块边界**: 尊重 9 模块结构
+3. **宪法合规**: 每个 PR 必须符合上述原则
+4. **测试每个能力**: 核心阶段要求所有五大能力都有可工作的 demo
+5. **第一天就审计**: 立即写入 tool_invocations 和 llm_calls 表
 
-### Common Pitfalls to Avoid
+### 常见陷阱（避免）
 
-❌ **Enabling Spring AI auto tool execution** → Tools run twice  
-❌ **Type-scanning for Provider beans** → Ambiguity with multiple providers  
-❌ **Treating Agent directory as Tool** → Should be context source  
-❌ **Merging Memory into Session** → Keep MemoryService as separate façade  
-❌ **Using SecurityManager** → Deprecated in JDK 17+, removed in JDK 21  
-❌ **Splitting Tool module** → Keep as unified `zryxos-tool`  
-❌ **Skipping audit table writes** → Must write from core phase  
+❌ **启用 Spring AI 自动工具执行** → 工具运行两次  
+❌ **类型扫描 Provider beans** → 多 provider 时产生歧义  
+❌ **将 Agent 目录当作 Tool** → 应该是上下文来源  
+❌ **将 Memory 合并到 Session** → 保持 MemoryService 为独立门面  
+❌ **使用 SecurityManager** → JDK 17+ 已废弃，JDK 21 已移除  
+❌ **拆分 Tool 模块** → 保持为统一的 `zryxos-tool`  
+❌ **跳过审计表写入** → 必须从核心阶段开始写  
 
-### Naming Conventions
+### 命名规范
 
-- **Modules**: `zryxos-<name>` (lowercase)
-- **Core interfaces**: `ZryxTool`, `ZryxOsCli` (PascalCase)
-- **Commands**: `zryxos <subcommand>` (lowercase)
-- **Directories**: `.zryxos/` (lowercase)
-- **Database**: `zryxos.db` (lowercase)
+- **模块**: `zryxos-<name>`（小写）
+- **核心接口**: `ZryxTool`, `ZryxOsCli`（大驼峰）
+- **命令**: `zryxos <subcommand>`（小写）
+- **目录**: `.zryxos/`（小写）
+- **数据库**: `zryxos.db`（小写）
 
-## Development Phases
+## 开发阶段
 
-### Core Phase (Current, 4 weeks/12 hours)
+### 核心阶段（当前，4 周/12 小时）
 
-**Week 1**: LLM + ReAct
-- Maven structure, Provider abstraction, ReAct loop, one HTTP tool, CLI channel
+**第 1 周**: LLM + ReAct
+- Maven 结构、Provider 抽象、ReAct 循环、一个 HTTP 工具、CLI 渠道
 
-**Week 2**: Memory + Tool
-- MEMORY.md, MemoryTools, file/shell tools, Sandbox, MCP client, Agent directory loading
+**第 2 周**: Memory + Tool
+- MEMORY.md、MemoryTools、file/shell 工具、Sandbox、MCP client、Agent 目录加载
 
-**Week 3**: Web Service
-- Spring MVC, 6 controllers, 10 REST endpoints, ConfigLoader
+**第 3 周**: Web Service
+- Spring MVC、6 个 controller、10 个 REST 端点、ConfigLoader
 
-**Week 4**: Multi-agent + Polish
-- Multiple Profiles, SQLite persistence, Bootstrap loading, 12 CLI commands, scheduler, project homepage
+**第 4 周**: 多 agent + 完善
+- 多个 Profile、SQLite 持久化、Bootstrap 加载、12 个 CLI 命令、调度器、项目主页
 
-### Acceptance Demos (Must Pass)
+### 验收 Demo（必须通过）
 
-**Demo 1: Daily Weather** (Every morning auto-run)
-- Capabilities: LLM + ReAct + HTTP Tool + Scheduler + Notify
-- Scenario: Cron trigger → query weather → generate outfit advice → push to IM
-- Validation: No manual trigger, all HTTP calls pass Sandbox, audit trail in tool_invocations
+**Demo 1: 每日天气**（每天早上自动运行）
+- 能力: LLM + ReAct + HTTP Tool + Scheduler + Notify
+- 场景: Cron 触发 → 查询天气 → 生成穿搭建议 → 推送到 IM
+- 验证: 无需手动触发，所有 HTTP 调用通过 Sandbox，tool_invocations 中有审计记录
 
-**Demo 2: Daily Tech Digest** (Every morning auto-run)
-- Capabilities: AGENT.md directory + MCP + Memory + Scheduler + Notify
-- Scenario: Business writes AGENT.md + configures MCP → Agent reads sub-instructions via read_file → calls news MCP → considers memory preferences → pushes digest
-- Validation: Zero Java code, sub-instruction loaded on-demand, memory influences output
+**Demo 2: 每日科技日报**（每天早上自动运行）
+- 能力: AGENT.md 目录 + MCP + Memory + Scheduler + Notify
+- 场景: 业务方写 AGENT.md + 配置 MCP → Agent 通过 read_file 读子指令 → 调用新闻 MCP → 考虑记忆偏好 → 推送日报
+- 验证: 零 Java 代码，子指令按需加载，记忆影响输出
 
-### Extended Phase (Community-driven)
+### 扩展阶段（社区驱动）
 
-- Multi-channel (WeChat Enterprise, Feishu, DingTalk)
-- Provider reliability (fallback, circuit breaker)
-- Memory semantic search (vector DB)
-- Complete Sandbox (container → microVM)
-- Enterprise governance (SSO, multi-tenancy, RBAC, full audit)
-- Web dashboard
+- 多渠道（企业微信、飞书、钉钉）
+- Provider 可靠性（fallback、circuit breaker）
+- Memory 语义检索（向量数据库）
+- 完整 Sandbox（容器 → microVM）
+- 企业治理（SSO、多租户、RBAC、完整审计）
+- Web 仪表板
 - Kubernetes operator
 
-## References
+## 参考文档
 
-### Key Documents (in docs/)
+### 关键文档（在 docs/ 中）
 
-- `01-IndustryResearch.md`: Agent OS landscape, OpenClaw/Hermes analysis, Java ecosystem gap
-- `02-DemandAnalysis.md`: Requirements (What), five core capabilities, acceptance criteria
-- `03-TechnicalSolution.md`: Technical design (How), architecture, 9 modules, implementation details
-- `04-AiProgrammingGuide.md`: Spec-Kit workflow, 5 user stories, implementation rhythm
+- `01-IndustryResearch.md`: Agent OS 格局、OpenClaw/Hermes 分析、Java 生态空白
+- `02-DemandAnalysis.md`: 需求（What），五大核心能力，验收标准
+- `03-TechnicalSolution.md`: 技术设计（How），架构、9 模块、实现细节
+- `04-AiProgrammingGuide.md`: Spec-Kit 工作流、5 个 user story、实施节奏
 
-### Important Concepts
+### 重要概念
 
-- **Agent OS vs Agent Runtime**: OS manages multiple agents + governance; Runtime executes single agent
-- **Profile vs Skill**: Profile = runtime binding (how to run); Skill = task definition (what to do)
-- **Three trigger sources**: CLI (human) + Web Service (human) + AgentScheduler (clock)
-- **Progressive disclosure**: AGENT.md body loaded upfront, sub-resources loaded on-demand
-- **Signal-driven upgrade**: Core delivers basics, extended upgrades based on real needs
+- **Agent OS vs Agent Runtime**: OS 管理多个 agent + 治理；Runtime 执行单个 agent
+- **Profile vs Skill**: Profile = 运行时绑定（怎么跑）；Skill = 任务定义（做什么）
+- **三种触发源**: CLI（人推）+ Web Service（人推）+ AgentScheduler（钟推）
+- **渐进式披露**: AGENT.md 正文预先加载，子资源按需加载
+- **信号驱动升级**: 核心交付基础，扩展根据实际需求升级
 
-## Commands Reference
+## 命令参考
 
 ```bash
-# Workspace
-zryxos init                      # Initialize .zryxos/ workspace
+# 工作区
+zryxos init                      # 初始化 .zryxos/ 工作区
 
-# Runtime modes
-zryxos chat [--profile <name>]   # Interactive CLI
-zryxos serve                     # REST API server
-zryxos gateway                   # Multi-channel daemon
+# 运行模式
+zryxos chat [--profile <name>]   # 交互式 CLI
+zryxos serve                     # REST API 服务器
+zryxos gateway                   # 多渠道守护进程
 
-# Profile management
+# Profile 管理
 zryxos profile list
 zryxos profile create <name>
 zryxos profile show <name>
 zryxos profile delete <name>
 
-# Information queries
+# 信息查询
 zryxos status
 zryxos provider list
 zryxos tool list
 zryxos session list
 ```
 
-## API Endpoints (Core 10)
+## API 端点（核心 10 个）
 
-### Session Management (4)
-- `POST /api/v1/sessions` - Create session
-- `POST /api/v1/sessions/{id}/messages` - Send message
-- `GET /api/v1/sessions/{id}` - Query history
-- `DELETE /api/v1/sessions/{id}` - Archive session
+### 会话管理（4 个）
+- `POST /api/v1/sessions` - 创建会话
+- `POST /api/v1/sessions/{id}/messages` - 发送消息
+- `GET /api/v1/sessions/{id}` - 查询历史
+- `DELETE /api/v1/sessions/{id}` - 归档会话
 
-### Agent Invocation (1)
-- `POST /api/v1/agents/{name}/invoke` - Stateless call
+### Agent 调用（1 个）
+- `POST /api/v1/agents/{name}/invoke` - 无状态调用
 
-### Information Queries (3)
-- `GET /api/v1/profiles` - List profiles
-- `GET /api/v1/memory` - Query long-term memory
-- `GET /api/v1/tools` - List available tools
+### 信息查询（3 个）
+- `GET /api/v1/profiles` - 列出 profiles
+- `GET /api/v1/memory` - 查询长期记忆
+- `GET /api/v1/tools` - 列出可用工具
 
-### System Status (2)
-- `GET /api/v1/health` - Health check
-- `GET /api/v1/info` - Runtime info
+### 系统状态（2 个）
+- `GET /api/v1/health` - 健康检查
+- `GET /api/v1/info` - 运行时信息
 
-## Contributing
+## 贡献指南
 
-When contributing to ZryxOS:
+为 ZryxOS 贡献时：
 
-1. **Understand the architecture**: Read all four documents in docs/
-2. **Respect constitutional principles**: Non-negotiable design decisions
-3. **Follow module boundaries**: Don't mix concerns across modules
-4. **Write tests**: Each feature needs end-to-end test
-5. **Document changes**: Update relevant docs/ files
-6. **Maintain naming consistency**: All Zryx-related names must align
+1. **理解架构**: 阅读 docs/ 中的全部四份文档
+2. **尊重宪法原则**: 非协商的设计决策
+3. **遵循模块边界**: 不要跨模块混合职责
+4. **编写测试**: 每个特性需要端到端测试
+5. **更新文档**: 更新相关 docs/ 文件
+6. **保持命名一致性**: 所有 Zryx 相关命名必须对齐
 
-## License & Credits
+## 许可与致谢
 
-- Project: ZryxOS
-- Repository: https://github.com/XianReallyHot-ZZH/ZryxOS
-- Author: XianReallyHot-ZZH
-- License: (To be specified)
-- AI Assistant: Claude Opus 4.8
+- 项目: ZryxOS
+- 仓库: https://github.com/XianReallyHot-ZZH/ZryxOS
+- 作者: XianReallyHot-ZZH
+- 许可: （待指定）
+- AI 助手: Claude Opus 4.8
 
 ---
 
-*This guide is generated from comprehensive project documentation. For detailed information, refer to the four documents in the `docs/` directory.*
+*本指南基于完整的项目文档生成。详细信息请参考 `docs/` 目录中的四份文档。*
