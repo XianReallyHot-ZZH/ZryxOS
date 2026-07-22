@@ -1,28 +1,60 @@
 <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <!-- 简洁的渐变 -->
-    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    <!-- 渐变：蓝紫色调，参考 AI 项目常用色 -->
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
     </linearGradient>
+
+    <!-- 阴影效果 -->
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-opacity="0.2"/>
+    </filter>
   </defs>
 
-  <!-- 圆角方形背景 -->
-  <rect x="40" y="40" width="320" height="320" rx="80" fill="url(#mainGradient)"/>
+  <!-- 主背景圆形 - 类似 Ollama/Hugging Face 的圆形设计 -->
+  <circle cx="200" cy="200" r="180" fill="url(#grad1)" filter="url(#shadow)"/>
 
-  <!-- 字母 Z - 主要元素 -->
+  <!-- Agent OS 核心概念：三个互联的智能体节点，形成 Z 形 -->
   <g transform="translate(200, 200)">
-    <!-- Z 字形路径 -->
-    <path d="M -80,-80 L 80,-80 L -80,80 L 80,80"
-          fill="none"
-          stroke="#ffffff"
-          stroke-width="24"
-          stroke-linecap="round"
-          stroke-linejoin="round"/>
 
-    <!-- 三个简约的点 - 代表多 Agent -->
-    <circle cx="-60" cy="-50" r="8" fill="#ffffff" opacity="0.9"/>
-    <circle cx="0" cy="0" r="8" fill="#ffffff" opacity="0.9"/>
-    <circle cx="60" cy="50" r="8" fill="#ffffff" opacity="0.9"/>
+    <!-- 上方节点 - 圆形代表 Agent -->
+    <g transform="translate(-60, -80)">
+      <circle r="35" fill="#ffffff" opacity="0.95"/>
+      <!-- 内部小圆点，类似眼睛/智能体标识 -->
+      <circle cx="-8" cy="-5" r="6" fill="#667eea"/>
+      <circle cx="8" cy="-5" r="6" fill="#667eea"/>
+      <path d="M -12,8 Q 0,16 12,8" stroke="#667eea" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- 中间节点 -->
+    <g transform="translate(0, 0)">
+      <circle r="35" fill="#ffffff" opacity="0.95"/>
+      <circle cx="-8" cy="-5" r="6" fill="#764ba2"/>
+      <circle cx="8" cy="-5" r="6" fill="#764ba2"/>
+      <path d="M -12,8 Q 0,16 12,8" stroke="#764ba2" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- 下方节点 -->
+    <g transform="translate(60, 80)">
+      <circle r="35" fill="#ffffff" opacity="0.95"/>
+      <circle cx="-8" cy="-5" r="6" fill="#667eea"/>
+      <circle cx="8" cy="-5" r="6" fill="#667eea"/>
+      <path d="M -12,8 Q 0,16 12,8" stroke="#667eea" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <!-- 连接线 - 类似 LangChain 的链条概念 -->
+    <line x1="-60" y1="-80" x2="0" y2="0"
+          stroke="#ffffff" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+    <line x1="0" y1="0" x2="60" y2="80"
+          stroke="#ffffff" stroke-width="4" opacity="0.6" stroke-linecap="round"/>
+
+    <!-- Z 字标识 - 融入连接线中 -->
+    <text x="-95" y="-55" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#ffffff" opacity="0.9">Z</text>
+    <text x="75" y="105" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#ffffff" opacity="0.9">Z</text>
   </g>
+
+  <!-- 外圈虚线圆环 - 代表 OS 运行环境 -->
+  <circle cx="200" cy="200" r="185" fill="none" stroke="#ffffff" stroke-width="2"
+          stroke-dasharray="4,8" opacity="0.3"/>
 </svg>
