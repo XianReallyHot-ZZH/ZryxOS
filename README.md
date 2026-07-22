@@ -42,19 +42,17 @@ ZryxOS 是基于 **Java 21** 和 **Spring Boot 3.x** 构建的企业级 Agent �
 
 ZryxOS 采用清晰的分层架构：
 
-```
-┌─────────────────────────────────────────────────────┐
-│  Channel/Trigger Layer (CLI, REST API, Scheduler)  │
-├─────────────────────────────────────────────────────┤
-│      Agent Layer (AGENT.md 目录定义业务 Agent)      │
-├─────────────────────────────────────────────────────┤
-│   Engine Layer (ReActLoop, PromptBuilder, ...)     │
-├─────────────────────────────────────────────────────┤
-│   Capability Layer (Provider, Memory, Tool, ...)   │
-├─────────────────────────────────────────────────────┤
-│     Storage Layer (SQLite + Filesystem)            │
-└─────────────────────────────────────────────────────┘
-```
+<div align="center">
+  <img src="docs/images/docs-architecture-light.svg" alt="ZryxOS Architecture" width="800"/>
+</div>
+
+**五层架构说明**：
+
+- **Channel/Trigger Layer** - 三种触发源：CLI（人推）、REST API（人推）、Scheduler（钟推）
+- **Agent Layer** - 一个 Agent = 一个目录（AGENT.md），定义业务智能体
+- **Engine Layer** - ReActLoop 推理循环、PromptBuilder、ToolExecutor
+- **Capability Layer** - Provider（LLM）、Memory（记忆）、Tool（工具）、Notify（通知）
+- **Storage Layer** - SQLite（审计、会话）+ Filesystem（配置、记忆）
 
 ### 五大核心能力
 
