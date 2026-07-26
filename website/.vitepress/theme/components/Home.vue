@@ -628,6 +628,7 @@ java -jar target/zryxos.jar chat</code></pre>
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+  align-items: stretch;
 }
 .zryxos-integration-card {
   background: #ffffff;
@@ -637,11 +638,17 @@ java -jar target/zryxos.jar chat</code></pre>
   display: flex;
   flex-direction: column;
   gap: 12px;
+  height: 100%;
 }
 .zryxos-integration-featured { border-color: #ea580c; border-width: 2px; }
 .zryxos-integration-icon { font-size: 28px; }
 .zryxos-integration-title { font-size: 17px; font-weight: 700; color: #000000; margin: 0; }
 .zryxos-integration-desc { font-size: 14px; color: #666666; line-height: 1.6; margin: 0; flex: 1; }
+.zryxos-integration-card .zryxos-code {
+  max-height: 180px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
 
 /* ── Command grid ── */
 .zryxos-cmd-grid { display: flex; flex-direction: column; gap: 28px; }
