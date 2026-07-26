@@ -251,7 +251,7 @@ const scenarios = computed(() => [
 
     <!-- ── INTEGRATION ── -->
     <section class="zryxos-section zryxos-integration-section">
-      <div class="zryxos-section-inner">
+      <div class="zryxos-section-inner zryxos-integration-inner">
         <div class="zryxos-section-header">
           <div class="zryxos-section-tag">{{ t('接入方式', 'Integration') }}</div>
           <h2 class="zryxos-section-title">{{ t('三种运行模式，灵活接入', 'Three Run Modes, Flexible Integration') }}</h2>
@@ -504,6 +504,7 @@ java -jar target/zryxos.jar chat</code></pre>
 .zryxos-section { padding: 72px 24px; }
 .zryxos-section-inner { max-width: 1000px; margin: 0 auto; }
 .zryxos-primitives-inner { max-width: 1400px; }
+.zryxos-integration-inner { max-width: 1400px; }
 .zryxos-section-header { text-align: center; margin-bottom: 48px; }
 .zryxos-section-tag {
   display: inline-block;
