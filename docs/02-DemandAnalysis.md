@@ -141,7 +141,7 @@ API 覆盖六类操作：
 
 | 术语 | 定义 |
 |------|------|
-| **Agent（智能体）** | 一个具象的业务智能体，定义本体是一个目录 `.oryxos/agents/<name>/`：`AGENT.md`（frontmatter 是这个 Agent 自己的 profile——用哪个模型、能用哪些工具、绑定哪个渠道、要不要定时；正文是任务指令——做什么、什么时候该做）加可选 `skills/*.md` 子指令、`scripts/` 脚本、`REFERENCE.md` 参考。一个目录就是一个完整可用的业务 Agent，不是写代码写出来的 |
+| **Agent（智能体）** | 一个具象的业务智能体，定义本体是一个目录 `.zryxos/agents/<name>/`：`AGENT.md`（frontmatter 是这个 Agent 自己的 profile——用哪个模型、能用哪些工具、绑定哪个渠道、要不要定时；正文是任务指令——做什么、什么时候该做）加可选 `skills/*.md` 子指令、`scripts/` 脚本、`REFERENCE.md` 参考。一个目录就是一个完整可用的业务 Agent，不是写代码写出来的 |
 | **Profile（配置）** | 底座内部的运行时宿主配置对象，决定一个 Agent"怎么跑"：绑定的 LLM Provider、可用 Tool 列表、绑定 Channel、Tool Policy、引用的 Skill、定时规则。它不再是一份单独手写的 YAML——`AgentLoader.deriveProfile()` 把 `AGENT.md` 的 frontmatter 派生成 `Profile`，让 Agent 目录零改动复用整台底座 |
 | **Provider（供应商）** | LLM API 服务的抽象，实现统一接口让 Agent 不感知具体调的是哪家模型 |
 | **ReAct 循环** | Agent 的核心工作机制，Reason + Act。LLM 思考是否调用工具，调用后看结果，再决定下一步，直到给出最终响应 |
@@ -152,9 +152,9 @@ API 覆盖六类操作：
 | **Session（会话）** | 用户和 Agent 一次对话的上下文容器，包含对话历史、当前上下文、临时变量 |
 | **Sandbox（沙箱）** | 工具执行的隔离环境。核心阶段是应用层白名单校验，扩展阶段补容器级隔离 |
 | **Tool Policy（工具策略）** | 控制 Agent 可用工具的允许或拒绝规则，在 Profile 级别配置 |
-| **Skill（技能）** | 全局共享的能力库，存 `.oryxos/skills/<name>/SKILL.md`（frontmatter 加约束指令正文）。Agent 在 `AGENT.md` frontmatter 用 `skills: [名]` 按名引用，`ContextLoader` 组装 system prompt 时把引用到的 Skill 正文注入，用来强约束产出。Skill 不是可执行 Tool，不进 `ToolRegistry` |
+| **Skill（技能）** | 全局共享的能力库，存 `.zryxos/skills/<name>/SKILL.md`（frontmatter 加约束指令正文）。Agent 在 `AGENT.md` frontmatter 用 `skills: [名]` 按名引用，`ContextLoader` 组装 system prompt 时把引用到的 Skill 正文注入，用来强约束产出。Skill 不是可执行 Tool，不进 `ToolRegistry` |
 | **Bootstrap（引导文件）** | 加载到系统提示词中的上下文文件：AGENTS.md（项目级 agent 行为说明）、SOUL.md（agent 人格定义）、USER.md（用户偏好） |
-| **Workspace（工作区）** | ZryxOS 实例的工作目录，默认是 `.oryxos/`，包含 Agent 目录、全局 Skill 库、Bootstrap 文件、记忆、会话、产出物、日志的子目录 |
+| **Workspace（工作区）** | ZryxOS 实例的工作目录，默认是 `.zryxos/`，包含 Agent 目录、全局 Skill 库、Bootstrap 文件、记忆、会话、产出物、日志的子目录 |
 
 ---
 
@@ -201,16 +201,16 @@ ZryxOS 的核心目标可以用四个词概括：**统一、私有、易接入�
 
 ### 5.1 工作区初始化
 
-ZryxOS 的工作目录是 `.oryxos/`，通过 `oryxos init` 命令初始化。
+ZryxOS 的工作目录是 `.zryxos/`，通过 `zryxos init` 命令初始化。
 
 ```bash
-oryxos init   # 在当前目录下创建 .oryxos/ 工作区
+zryxos init   # 在当前目录下创建 .zryxos/ 工作区
 ```
 
 初始化后的目录结构：
 
 ```
-.oryxos/
+.zryxos/
 ├── agents/            # 每个子目录 = 一个 Agent（AGENT.md + 可选 skills/ scripts/ REFERENCE.md）
 ├── skills/            # 全局 Skill 库（每个子目录一个 SKILL.md），Agent 按名引用
 ├── output/            # Agent 产出物
@@ -224,13 +224,13 @@ oryxos init   # 在当前目录下创建 .oryxos/ 工作区
 ```
 
 - 三个 Bootstrap 文件在 Agent 启动时被自动加载到系统提示词，让 Agent 知道项目背景、自己的身份、用户偏好
-- `oryxos init` 幂等：已存在的目录和文件一律不覆盖。六个子目录建好后，用 `oryxos profile create <name>` 生成第一个 Agent 目录
+- `zryxos init` 幂等：已存在的目录和文件一律不覆盖。六个子目录建好后，用 `zryxos profile create <name>` 生成第一个 Agent 目录
 
 ---
 
 ### 5.2 定义一个 Agent：AGENT.md
 
-一个目录 = 一个 Agent。`.oryxos/agents/<name>/AGENT.md` 由两部分组成：**frontmatter** 是这个 Agent 自己的 profile（用哪个 Provider/模型、能用哪些 Tool、引用哪些全局 Skill、绑定哪个 Channel、要不要定时），**正文**是任务指令（"这个 Agent 具体做什么"）。`AgentLoader.deriveProfile()` 把 frontmatter 派生成底座认识的 `Profile`，所以不需要另写一份 Profile YAML。
+一个目录 = 一个 Agent。`.zryxos/agents/<name>/AGENT.md` 由两部分组成：**frontmatter** 是这个 Agent 自己的 profile（用哪个 Provider/模型、能用哪些 Tool、引用哪些全局 Skill、绑定哪个 Channel、要不要定时），**正文**是任务指令（"这个 Agent 具体做什么"）。`AgentLoader.deriveProfile()` 把 frontmatter 派生成底座认识的 `Profile`，所以不需要另写一份 Profile YAML。
 
 **AGENT.md frontmatter 结构：**
 
@@ -251,7 +251,7 @@ tools:
   - string                      # 可用 Tool 名称列表
 
 skills:
-  - string                      # 按名引用全局 Skill 库（.oryxos/skills/<名>/），正文注入 system prompt
+  - string                      # 按名引用全局 Skill 库（.zryxos/skills/<名>/），正文注入 system prompt
 
 mcp_servers:
   - string                      # 引用的 MCP Server 列表
@@ -268,13 +268,13 @@ settings:
   max_history_turns: 20         # 最大对话历史轮数
 ```
 
-**Agent 管理命令**（命令组名沿用 `profile`，操作的是 `.oryxos/agents/` 下的 Agent 目录）：
+**Agent 管理命令**（命令组名沿用 `profile`，操作的是 `.zryxos/agents/` 下的 Agent 目录）：
 
 ```bash
-oryxos profile create <name>    # 创建 Agent（生成最小 AGENT.md 模板）
-oryxos profile list             # 列出全部 Agent
-oryxos profile show <name>      # 查看某个 Agent 的 AGENT.md
-oryxos profile delete <name>    # 删除 Agent（整个目录）
+zryxos profile create <name>    # 创建 Agent（生成最小 AGENT.md 模板）
+zryxos profile list             # 列出全部 Agent
+zryxos profile show <name>      # 查看某个 Agent 的 AGENT.md
+zryxos profile delete <name>    # 删除 Agent（整个目录）
 ```
 
 核心阶段支持创建并管理多个 Agent，多个 Agent 可以在同一个 ZryxOS 实例上并存，这是"OS"在核心阶段的最小体现。
@@ -335,7 +335,7 @@ ReAct 循环是 Agent 的核心工作机制，也是 ZryxOS 最关键的一段�
 
 #### 长期记忆（极简版）
 
-- 存在 `.oryxos/memory/MEMORY.md` 一个 Markdown 文件，跨所有对话保留
+- 存在 `.zryxos/memory/MEMORY.md` 一个 Markdown 文件，跨所有对话保留
 - Agent 通过两个内置 Tool 主动读写：
   - `save_memory(content)`：把要长期记住的事追加到 MEMORY.md
   - `recall_memory(query)`：按关键词检索 MEMORY.md 里的相关内容
@@ -375,7 +375,7 @@ Tool 是 Agent 可以调用的外部能力。Agent 通过 LLM Function Calling �
 > **选择原则**：能用方式一就不用方式二，能用方式二就不用方式三。
 
 **零代码示例**：想做"每天早上推送昨日 GitHub PR 评审进度到 Slack"，只需：
-1. 建 `.oryxos/agents/daily-pr-digest/`，写一份 `AGENT.md`：frontmatter 声明 provider、`mcp_servers`、`schedules`，正文写任务指令
+1. 建 `.zryxos/agents/daily-pr-digest/`，写一份 `AGENT.md`：frontmatter 声明 provider、`mcp_servers`、`schedules`，正文写任务指令
 2. 复用社区现成的 `github-mcp` 和 `slack-mcp`，配置在 `mcp_servers.yaml`
 3. 需要固定产出格式就在 frontmatter 用 `skills: [名]` 引用全局 Skill 库里的规范
 
@@ -397,7 +397,7 @@ Tool 是 Agent 可以调用的外部能力。Agent 通过 LLM Function Calling �
 
 Channel 是 Agent 对外的消息接入入口，主要解决"消息进来、响应出去"这件事。HTTP 接入归 Web Service，不在 Channel 范畴内。
 
-核心阶段只内置一种 Channel：**CLI Channel**，通过 `oryxos chat` 命令启动，支持多轮对话、查看上下文、查看 Tool 调用记录。
+核心阶段只内置一种 Channel：**CLI Channel**，通过 `zryxos chat` 命令启动，支持多轮对话、查看上下文、查看 Tool 调用记录。
 
 企业微信、飞书、钉钉、Slack 等 IM Channel 放在扩展功能（实现复杂度高，需要 OAuth 和企业资质，不在 12 小时核心阶段能完成的范围）。
 
@@ -443,7 +443,7 @@ Profile 的 show/reload/create/update/delete；Memory 的 append/clear/search；
 
 Session 是用户和 Agent 一次对话的上下文容器，包含起止时间、用户身份、Agent 标识、对话历史、当前上下文、临时变量。Session 标识由 Channel、用户、Agent 联合生成。
 
-核心阶段 Session 数据持久化到本地 SQLite（`.oryxos/sessions/` 下）。重启 ZryxOS 后，正在进行的 Session 可以恢复。Session 上下文超过 LLM 的 context window 时，简单截断早期对话保留近期对话。
+核心阶段 Session 数据持久化到本地 SQLite（`.zryxos/sessions/` 下）。重启 ZryxOS 后，正在进行的 Session 可以恢复。Session 上下文超过 LLM 的 context window 时，简单截断早期对话保留近期对话。
 
 ---
 
@@ -451,9 +451,9 @@ Session 是用户和 Agent 一次对话的上下文容器，包含起止时间�
 
 | 模式 | 命令 | 说明 |
 |------|------|------|
-| 交互对话 | `oryxos chat` | 交互式多轮对话，开发调试和日常使用的主要方式。`--message "xxx"` 可发单条消息后退出 |
-| HTTP API | `oryxos serve` | 启动后在指定端口（默认 8080）开放 RESTful 接口，业务系统通过 HTTP 调用 |
-| 守护进程 | `oryxos gateway` | 常驻守护进程，同时服务多个 Channel |
+| 交互对话 | `zryxos chat` | 交互式多轮对话，开发调试和日常使用的主要方式。`--message "xxx"` 可发单条消息后退出 |
+| HTTP API | `zryxos serve` | 启动后在指定端口（默认 8080）开放 RESTful 接口，业务系统通过 HTTP 调用 |
+| 守护进程 | `zryxos gateway` | 常驻守护进程，同时服务多个 Channel |
 
 三种模式共享同一份 Profile 配置和 Session 存储。
 
@@ -465,18 +465,18 @@ Session 是用户和 Agent 一次对话的上下文容器，包含起止时间�
 
 | 类别 | 命令 | 说明 |
 |------|------|------|
-| 启动和状态 | `oryxos init` | 初始化工作区 |
-| 启动和状态 | `oryxos status` | 查看配置和运行状态 |
-| 启动和状态 | `oryxos chat [--profile <name>]` | 交互对话 |
-| 启动和状态 | `oryxos serve` | 启动 HTTP API 服务 |
-| 启动和状态 | `oryxos gateway` | 启动多渠道守护进程 |
-| Profile 管理 | `oryxos profile list` | 列出所有 Profile |
-| Profile 管理 | `oryxos profile create <name>` | 创建新 Profile |
-| Profile 管理 | `oryxos profile show <name>` | 查看 Profile 详情 |
-| Profile 管理 | `oryxos profile delete <name>` | 删除 Profile |
-| 查询 | `oryxos provider list` | 列出已配置的 Provider |
-| 查询 | `oryxos tool list` | 列出已注册的 Tool |
-| 查询 | `oryxos session list` | 列出会话历史 |
+| 启动和状态 | `zryxos init` | 初始化工作区 |
+| 启动和状态 | `zryxos status` | 查看配置和运行状态 |
+| 启动和状态 | `zryxos chat [--profile <name>]` | 交互对话 |
+| 启动和状态 | `zryxos serve` | 启动 HTTP API 服务 |
+| 启动和状态 | `zryxos gateway` | 启动多渠道守护进程 |
+| Profile 管理 | `zryxos profile list` | 列出所有 Profile |
+| Profile 管理 | `zryxos profile create <name>` | 创建新 Profile |
+| Profile 管理 | `zryxos profile show <name>` | 查看 Profile 详情 |
+| Profile 管理 | `zryxos profile delete <name>` | 删除 Profile |
+| 查询 | `zryxos provider list` | 列出已配置的 Provider |
+| 查询 | `zryxos tool list` | 列出已注册的 Tool |
+| 查询 | `zryxos session list` | 列出会话历史 |
 
 ---
 
@@ -516,7 +516,7 @@ ZryxOS 作为开源项目，需要一个独立的主页作为对外门面，讲�
 - **Memory 语义检索**：集成向量数据库（Milvus、Qdrant、Weaviate、PostgreSQL pgvector），按语义相似度匹配
 - **情景记忆**：补齐 Memory 第三层，记录任务过程中修改的文件、决策、成果
 - **Memory Wiki**：结构化 claim/evidence、矛盾检测、新鲜度管理
-- **Skill 库增强**：全局 Skill 库（`.oryxos/skills/<name>/SKILL.md`，按名引用、正文注入）在核心阶段已落地；扩展阶段补语义检索选 Skill、版本管理、以及从 agentskills.io 等开放格式导入时的企业审查流程
+- **Skill 库增强**：全局 Skill 库（`.zryxos/skills/<name>/SKILL.md`，按名引用、正文注入）在核心阶段已落地；扩展阶段补语义检索选 Skill、版本管理、以及从 agentskills.io 等开放格式导入时的企业审查流程
 
 ### 6.3 工具和安全层
 
@@ -607,8 +607,8 @@ ZryxOS 作为开源项目，需要一个独立的主页作为对外门面，讲�
 ### 流程一：工作区初始化
 
 ```
-用户执行 oryxos init
-  → ZryxOS 创建 .oryxos/ 目录及六个子目录
+用户执行 zryxos init
+  → ZryxOS 创建 .zryxos/ 目录及六个子目录
     （agents / skills / output / memory / sessions / logs）
   → 创建三个 Bootstrap 文件（AGENTS.md、SOUL.md、USER.md）
   → 幂等：已存在的目录和文件一律不覆盖
@@ -618,10 +618,10 @@ ZryxOS 作为开源项目，需要一个独立的主页作为对外门面，讲�
 ### 流程二：Agent 创建和启动
 
 ```
-用户执行 oryxos profile create <name>
-  → ZryxOS 在 .oryxos/agents/<name>/ 下创建 AGENT.md（最小模板）
+用户执行 zryxos profile create <name>
+  → ZryxOS 在 .zryxos/agents/<name>/ 下创建 AGENT.md（最小模板）
 用户编辑 AGENT.md：frontmatter 配 Provider、Tool 列表、Channel、引用的 Skill，正文写任务指令
-用户执行 oryxos chat --profile <name>
+用户执行 zryxos chat --profile <name>
   → AgentLoader.deriveProfile() 把 frontmatter 派生成 Profile
   → 初始化 Provider 连接
   → 注册 Tool 到 Agent 工具池
@@ -690,7 +690,7 @@ Session 超时无消息 → 结束，对话历史归档可查
 
 ### Memory（文件形态，非数据库表）
 
-长期记忆是 `.oryxos/memory/MEMORY.md` 一个 Markdown 文件，按追加方式写入，无结构化 schema。扩展阶段引入向量库后，Memory 才有结构化的 embedding 存储。
+长期记忆是 `.zryxos/memory/MEMORY.md` 一个 Markdown 文件，按追加方式写入，无结构化 schema。扩展阶段引入向量库后，Memory 才有结构化的 embedding 存储。
 
 ### Tool Invocation（记录每次 Tool 调用）
 
@@ -728,7 +728,7 @@ ZryxOS 核心功能的实施按 **4 周节奏**组织，每周 3 小时，合计
 
 | 周次 | 时间投入 | 能力主线 | 可演示成果 |
 |------|---------|---------|-----------|
-| **第一周** | 3 小时 | 对接 LLM + ReAct 循环（核心能力一+二） | `oryxos chat` 多轮对话，Agent 通过 ReAct 调 HTTP Tool 完成天气查询 |
+| **第一周** | 3 小时 | 对接 LLM + ReAct 循环（核心能力一+二） | `zryxos chat` 多轮对话，Agent 通过 ReAct 调 HTTP Tool 完成天气查询 |
 | **第二周** | 3 小时 | Memory + Tool 体系（核心能力三+四） | Agent 记住用户偏好并在后续对话用到，能调本地文件和外部 MCP server |
 | **第三周** | 3 小时 | Web Service（核心能力五） | 外部系统通过 10 个 REST 端点完整调用 ZryxOS |
 | **第四周** | 3 小时 | 多 Agent 演示 + 工程化收尾 | 多 Agent 并存可用，CLI 完整，Session 跨重启恢复，项目主页可访问 |
@@ -736,7 +736,7 @@ ZryxOS 核心功能的实施按 **4 周节奏**组织，每周 3 小时，合计
 ### 各周详细实施内容
 
 **第一周**（3 小时）：对接 LLM + ReAct 循环
-- `oryxos init` 工作区初始化、`AGENT.md` frontmatter 解析
+- `zryxos init` 工作区初始化、`AGENT.md` frontmatter 解析
 - Provider 抽象（基于 Spring AI Alibaba，先跑通 DeepSeek 或 Kimi）
 - ReAct 循环（核心循环约数十行 Java，含 LLM 调用、Tool 调用解析、消息累积）
 - 一个基础内置 Tool（HTTP）、CLI Channel
@@ -749,7 +749,7 @@ ZryxOS 核心功能的实施按 **4 周节奏**组织，每周 3 小时，合计
 
 **第三周**（3 小时）：Web Service + API 端点
 - Web Service 核心 10 个 REST 端点（会话管理 4 个、Agent 调用 1 个、Profile/Memory/Tool 列表 3 个、health/info 2 个）
-- 通过 `oryxos serve` 启动 Spring MVC 服务
+- 通过 `zryxos serve` 启动 Spring MVC 服务
 - 配置与密钥加载（环境变量注入 + 基础校验）
 
 **第四周**（3 小时）：多 Agent 演示 + 工程化收尾
@@ -791,7 +791,7 @@ ZryxOS 核心功能的实施按 **4 周节奏**组织，每周 3 小时，合计
 
 核心功能（第 5 章）全部完成，每个功能模块至少有一个端到端测试用例覆盖：
 
-- [ ] `oryxos init` 工作区初始化
+- [ ] `zryxos init` 工作区初始化
 - [ ] Profile 配置和管理（支持多 Profile 并存）
 - [ ] Provider 抽象（至少跑通 DeepSeek 和 Kimi 两个）
 - [ ] ReAct 循环（多轮 Tool 调用、正确累积消息历史、达到最大迭代次数时正确终止）
@@ -828,7 +828,7 @@ ZryxOS 核心功能的实施按 **4 周节奏**组织，每周 3 小时，合计
 | **Demo 一：每日天气** | 能力一+二（LLM + ReAct）、能力四（内置 HTTP Tool）、定时任务（`AgentScheduler`） | 每天早上到点自动查天气、生成穿搭建议，推送到企业 IM 群 | 不需要人工触发，到点自动跑完整 ReAct 循环；查天气和推送各一次 HTTP 调用，都过 Sandbox 域名白名单且都写入 `tool_invocations`；`GET /api/v1/sessions/{id}` 能查到这次自动触发的完整对话记录 |
 | **Demo 二：每日科技日报** | 能力四（Plugin Tool 方式一 Agent 目录零代码 + 方式二 MCP）、能力三（Memory）、定时任务（`AgentScheduler`） | 每天到点自动汇总当日科技新闻并推送，且日报内容会体现用户之前说过的关注方向（比如"更关注 AI 和芯片"） | 业务方全程不写 Java 代码，只写 `AGENT.md`（含 `schedules` 字段）+ 目录内 `skills/` 子指令 + `mcp_servers.yaml`；LLM 自己决定调新闻 MCP 工具、自己组织日报、自己调推送 MCP 工具，ZryxOS 不解析任务步骤；日报内容能体现 `MEMORY.md` 里记住的偏好 |
 
-两个 Demo 都是"钟推"（`AgentScheduler` 到点自动触发），但都要能同时支持"人推"手动补跑一次做验证（`oryxos chat` 或 `POST /agents/{name}/invoke`），验证同一个 Agent 不管从哪个入口触发，走的都是同一条 `AgentService` 链路。
+两个 Demo 都是"钟推"（`AgentScheduler` 到点自动触发），但都要能同时支持"人推"手动补跑一次做验证（`zryxos chat` 或 `POST /agents/{name}/invoke`），验证同一个 Agent 不管从哪个入口触发，走的都是同一条 `AgentService` 链路。
 
 ---
 
