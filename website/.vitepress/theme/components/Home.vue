@@ -626,7 +626,7 @@ java -jar target/zryxos.jar chat</code></pre>
 .zryxos-integration-section { background: #f5f5f5; }
 .zryxos-integration-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
   align-items: stretch;
 }
@@ -648,6 +648,12 @@ java -jar target/zryxos.jar chat</code></pre>
   max-height: 180px;
   overflow-y: auto;
   flex-shrink: 0;
+}
+
+@media (min-width: 1024px) {
+  .zryxos-integration-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* ── Command grid ── */
