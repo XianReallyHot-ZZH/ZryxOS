@@ -158,6 +158,54 @@ div[class*='language-'] > button.copy {
   border-bottom: none;
 }
 
+/* ─── Nav dropdown & Language switcher ────────────────────────── */
+.VPFlyout .menu,
+.VPFlyout .panel,
+.VPNavBarMenuGroup .panel,
+.VPNavBarMenuGroup .menu,
+.VPMenu,
+.VPFlyout > .menu,
+.VPNavBarMenuGroup > .menu {
+  background: #ffffff !important;
+  border: 1px solid var(--vp-c-divider) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+.VPMenu .item .VPMenuLink,
+.VPMenu .item .link,
+.VPFlyout .VPMenuLink,
+.VPFlyout .link {
+  color: var(--vp-c-text-1) !important;
+}
+
+.VPMenu .item .VPMenuLink:hover,
+.VPMenu .item .link:hover,
+.VPFlyout .VPMenuLink:hover,
+.VPFlyout .link:hover {
+  background: var(--vp-c-bg-soft) !important;
+  color: var(--vp-c-text-1) !important;
+}
+
+/* Language switcher specific */
+.VPLocalNav .VPFlyout .menu,
+.VPNavBarTranslations .VPFlyout .menu {
+  background: #ffffff !important;
+  border: 1px solid var(--vp-c-divider) !important;
+}
+
+.VPLocalNav .VPFlyout .menu .link,
+.VPNavBarTranslations .VPFlyout .menu .link,
+.VPLocalNav .VPFlyout .menu .text,
+.VPNavBarTranslations .VPFlyout .menu .text {
+  color: var(--vp-c-text-1) !important;
+}
+
+.VPLocalNav .VPFlyout .menu .link:hover,
+.VPNavBarTranslations .VPFlyout .menu .link:hover {
+  background: var(--vp-c-bg-soft) !important;
+  color: var(--vp-c-text-1) !important;
+}
+
 /* ─── Sidebar ─────────────────────────────────────────────────── */
 .VPSidebar {
   background: #ffffff !important;
