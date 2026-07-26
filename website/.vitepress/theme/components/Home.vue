@@ -640,6 +640,7 @@ java -jar target/zryxos.jar chat</code></pre>
   flex-direction: column;
   gap: 12px;
   height: 100%;
+  min-width: 0;
 }
 .zryxos-integration-featured { border-color: #ea580c; border-width: 2px; }
 .zryxos-integration-icon { font-size: 28px; }
@@ -648,7 +649,9 @@ java -jar target/zryxos.jar chat</code></pre>
 .zryxos-integration-card .zryxos-code {
   max-height: 180px;
   overflow-y: auto;
+  overflow-x: auto;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 @media (min-width: 1024px) {
