@@ -53,6 +53,50 @@ tool_choice: auto`,
 
 3. 情景记忆 (Episodic - 扩展阶段)`,
   },
+  {
+    icon: '🔧',
+    title: t('工具体系', 'Tool System'),
+    subtitle: t('内置工具 + MCP 集成 · 三档扩展 · Sandbox 沙箱', 'Built-in tools + MCP · 3-tier extension · Sandbox'),
+    code: `# 内置工具
+tools:
+  - read_file / write_file
+  - shell
+  - http_get / http_post
+  - memory_add / memory_query
+
+# 三档扩展
+1. 零代码: SKILL.md + 复用 MCP server
+2. 轻代码: 自写 MCP server
+3. 重代码: Java @Tool Bean
+
+# 沙箱白名单
+sandbox:
+  allowed_paths: [/data]
+  allowed_commands: [curl]
+  allowed_domains: [api.example.com]`,
+  },
+  {
+    icon: '🌐',
+    title: t('对外服务', 'Web Service'),
+    subtitle: t('REST API · 10 个端点 · 会话管理 + 无状态调用', 'REST API · 10 endpoints · Session + Stateless'),
+    code: `# 会话管理 (4 个端点)
+POST /api/v1/sessions
+POST /api/v1/sessions/{id}/messages
+GET  /api/v1/sessions/{id}
+DELETE /api/v1/sessions/{id}
+
+# Agent 调用 (1 个端点)
+POST /api/v1/agents/{name}/invoke
+
+# 信息查询 (3 个端点)
+GET /api/v1/profiles
+GET /api/v1/memory
+GET /api/v1/tools
+
+# 系统状态 (2 个端点)
+GET /api/v1/health
+GET /api/v1/info`,
+  },
 ])
 
 const scenarios = computed(() => [
@@ -569,7 +613,16 @@ java -jar target/zryxos.jar chat</code></pre>
 
 /* ── Primitives ── */
 .zryxos-primitives-section { background: #f5f5f5; }
-.zryxos-primitives { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 16px; }
+.zryxos-primitives {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+}
+@media (min-width: 1200px) {
+  .zryxos-primitives {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 .zryxos-primitive {
   padding: 20px;
   border-radius: 14px;
