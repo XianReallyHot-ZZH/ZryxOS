@@ -37,3 +37,14 @@ logs/
 *.bak
 *.swp
 *~
+
+# Node.js (website)
+node_modules/
+package-lock.json
+.pnpm-store/
+
+# VitePress
+website/.vitepress/dist
+website/.vitepress/cache
+.temp/
+

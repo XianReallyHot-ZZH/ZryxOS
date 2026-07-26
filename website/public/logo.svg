@@ -1,0 +1,42 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Claude 风格渐变：温暖的橙棕色系 -->
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d97706;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ea580c;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ea580c;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#dc2626;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#be123c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="400" height="400" fill="#ffffff"/>
+
+  <!-- Claude 风格：三个圆角方块组合成 Z 形 -->
+  <!-- 每个方块代表一个 Agent，组合成 Z 字母 -->
+
+  <!-- 上方方块 -->
+  <rect x="80" y="100" width="120" height="120" rx="24" fill="url(#grad1)"/>
+
+  <!-- 中间方块 - 稍微偏移形成对角线 -->
+  <rect x="140" y="140" width="120" height="120" rx="24" fill="url(#grad2)"/>
+
+  <!-- 下方方块 -->
+  <rect x="200" y="180" width="120" height="120" rx="24" fill="url(#grad3)"/>
+
+  <!-- 在中间方块上添加 Z 字标识 -->
+  <text x="200" y="215"
+        font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif"
+        font-size="56"
+        font-weight="700"
+        fill="#ffffff"
+        text-anchor="middle">Z</text>
+</svg>
